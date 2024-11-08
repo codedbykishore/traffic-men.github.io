@@ -6,7 +6,7 @@
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <head>
-    <title>Generation</title>
+    <title>Scraping</title>
     <style>
         html{
           overflow-x: hidden;
@@ -640,7 +640,7 @@
       Traffic_Men<span style="color:#810CA8;">.team</span>
     </div>
     <div class="menu">
-        <a href="/index.html" class="link">
+        <a href="index.html" class="link">
           <div class="title" id="about">HOME</div>
           <div class="bar"></div>
         </a>
@@ -666,22 +666,22 @@
 
   <div>
     <div class="about">
-        Root Map Generation
+        Data Scraping
       </div>
       <div class="aboutp" style="padding-left: 200px;">
-        This Python script generates a route map for bus stops using data from a CSV file. It begins by cleaning and organizing the data, then visualizes it as a network graph, where each stop is a node and routes are edges. Various layouts are explored to represent the data clearly, including spring and Kamada-Kawai layouts. The nodes and edges are colored based on specific criteria, such as the current stop, bus numbers, and routes. The script also adds legends for clarity and adjusts node spacing for better label visibility. Different representations are tested, including using distinct colors for edges and nodes, and customizing layouts for improved visualization.
+        This code scrapes bus route details from the MTC (Metropolitan Transport Corporation) website, extracting available routes and their respective stops. It installs necessary libraries like beautifulsoup4, pandas, and tqdm, then scrapes all bus routes from the website by parsing the HTML content and extracting route names from a dropdown menu. The route list is cleaned and stored in a pandas DataFrame. The code then initializes an empty DataFrame to collect route_id, stop_id, and stop_name for each route, using a progress bar from tqdm while scraping the details for each route. For each route, it parses the stops and appends the data to a list, which is later converted into a DataFrame. Finally, the DataFrame is saved into a CSV file for further analysis. The code also handles errors in case of unexpected data formats and ensures that only valid stop details are collected.
       </div>
       
       <div class="my_about" style="display: flex; justify-content: center;">
             <div>
-                <a href="https://colab.research.google.com/drive/1MrmnUNqAYBgoSO2dIvfCWQXlro1SQ5ut?usp=sharing">
+                <a href="https://colab.research.google.com/drive/1IfxIdzFBHYSDhO80EDtfVHtdzd2PndsJ#scrollTo=kUR-ODR4owjX">
                     <h4>Google Colab Link</h4>
                 </a>
             </div>
       </div>
     
       <div style="display: flex; justify-content: center;">
-        <embed src="map_gen.pdf" width="75%" height="2100px" />
+        <embed src="PDF/data_scrapper.ipynb - Colab.pdf" width="75%" height="2100px" />
       </div>
   </div>
 
