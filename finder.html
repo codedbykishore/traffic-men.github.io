@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Route Finder</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #map { height: 500px; width: 100%; margin-top: 20px; }
+        #details { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Find Public Transport Route</h2>
+    <!-- <form id="routeForm">
+        <label for="source">Source:</label>
+        <input type="text" id="source" placeholder="Enter Source Location" required><br><br>
+        <label for="destination">Destination:</label>
+        <input type="text" id="destination" placeholder="Enter Destination" required><br><br>
+        <button type="submit">Find Route</button>
+    </form> -->
+    <form id="routeForm">
+        <label for="source">Source: </label>
+        <input id="source" type="text" placeholder="Enter source location" required><br><br>
+    
+        <label for="destination">Destination: </label>
+        <input id="destination" type="text" placeholder="Enter destination location" required><br><br>
+    
+        <button type="submit">Find Route</button>
+    </form>
+    
+    <div id="map"></div>
+    <div id="details"></div>
+
+    <!-- Load Google Maps API -->
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAsm4x3RdcaLNBh9F-_Kdp_Eei8OY5G54w&callback=initMap&libraries=places"></script>
+    <script src="script.js"></script>
+    
+</body>
+</html>
