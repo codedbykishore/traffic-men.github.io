@@ -20,34 +20,12 @@ function initAutocomplete() {
     const sourceInput = document.getElementById("source");
     const destinationInput = document.getElementById("destination");
 
-    // Create the Autocomplete object for the source input field
     const sourceAutocomplete = new google.maps.places.Autocomplete(sourceInput);
-    sourceAutocomplete.setFields(["place_id", "geometry", "name"]); // Limit the data we need
-
-    // Create the Autocomplete object for the destination input field
     const destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
-    destinationAutocomplete.setFields(["place_id", "geometry", "name"]); // Limit the data we need
 
-    // Add event listeners to capture when the user selects a location
-    sourceAutocomplete.addListener("place_changed", function() {
-        const place = sourceAutocomplete.getPlace();
-        if (!place.geometry) {
-            // User did not select a valid place, handle this case
-            alert("Please select a valid source location from the suggestions.");
-            return;
-        }
-    });
-
-    destinationAutocomplete.addListener("place_changed", function() {
-        const place = destinationAutocomplete.getPlace();
-        if (!place.geometry) {
-            // User did not select a valid place, handle this case
-            alert("Please select a valid destination location from the suggestions.");
-            return;
-        }
-    });
+    sourceAutocomplete.setFields(["geometry", "name"]);
+    destinationAutocomplete.setFields(["geometry", "name"]);
 }
-
 
 // Fetch route details using Google Maps Directions API
 async function getRoute(source, destination) {
@@ -64,11 +42,10 @@ async function getRoute(source, destination) {
             travelMode: google.maps.TravelMode.TRANSIT,
         };
 
-        // Fetch the route
         directionsService.route(request, (result, status) => {
             if (status === google.maps.DirectionsStatus.OK) {
                 directionsRenderer.setDirections(result);
-                displayBusRoutes(result);
+                displayBusRoutes(result, destination);
             } else {
                 console.error("Error fetching route:", status);
                 document.getElementById("details").textContent = `No route found. Status: ${status}`;
@@ -80,50 +57,101 @@ async function getRoute(source, destination) {
     }
 }
 
-
-// Display bus routes from the directions response, including intermediate stops
-function displayBusRoutes(result) {
+// Display bus routes from the directions response and calculate distances
+function displayBusRoutes(result, destination) {
     const detailsDiv = document.getElementById("details");
     detailsDiv.innerHTML = ""; // Clear previous details
 
-    const routes = result.routes[0].legs[0].steps;
+    const routeLeg = result.routes[0].legs[0];
+    const steps = routeLeg.steps;
     const busRoutes = [];
 
-    routes.forEach((step) => {
+    let finalBusStopLocation = null;
+    let totalDistance = routeLeg.distance.text;
+    let totalTime = routeLeg.duration.text;
+
+    steps.forEach((step) => {
         if (step.travel_mode === "TRANSIT" && step.transit) {
             const transitDetails = step.transit;
 
             if (transitDetails.line.vehicle.type === "BUS") {
                 // Extract main bus details
                 const busInfo = `
-                    <div>
-                        <strong>Bus Number:</strong> ${transitDetails.line.short_name} <br>
-                        <strong>From:</strong> ${transitDetails.departure_stop.name} <br>
-                        <strong>To:</strong> ${transitDetails.arrival_stop.name} <br>
-                        <strong>Departure Time:</strong> ${transitDetails.departure_time.text} <br>
-                        <strong>Arrival Time:</strong> ${transitDetails.arrival_time.text} <br>
-                        <strong>Total Stops:</strong> ${transitDetails.num_stops}
-                    </div>
-                `;
+                    
+                        <div style="margin-left: 15%; margin-right: 15%; margin-top: 2%">
+    <div style="display: flex; justify-content: space-between;">
+        <div style="padding: 8px; margin-bottom: 8px; border-radius: 5px; background: linear-gradient(to bottom, #a64db6, #810CA8); box-shadow: inset 0px 1px 5px rgba(255,255,255,0.8); color: #fff;">
+            <strong>From:</strong> ${transitDetails.departure_stop.name}
+        </div>
+        <div style="padding: 8px; margin-bottom: 8px; border-radius: 5px; background: linear-gradient(to bottom, #a64db6, #810CA8); box-shadow: inset 0px 1px 5px rgba(255,255,255,0.8); color: #fff;">
+            <strong>To:</strong> ${transitDetails.arrival_stop.name}
+        </div>
+    </div>
+    <div style="display: flex; justify-content: space-between;">
+        <div style="padding: 8px; margin-bottom: 8px; border-radius: 5px; background: linear-gradient(to bottom, #a64db6, #810CA8); box-shadow: inset 0px 1px 5px rgba(255,255,255,0.8); color: #fff;">
+            <strong>Departure Time:</strong> ${transitDetails.departure_time.text}
+        </div>
+        <div style="padding: 8px; margin-bottom: 8px; border-radius: 5px; background: linear-gradient(to bottom, #a64db6, #810CA8); box-shadow: inset 0px 1px 5px rgba(255,255,255,0.8); color: #fff;">
+            <strong>Arrival Time:</strong> ${transitDetails.arrival_time.text}
+        </div>
+    </div>
+    <div style="display: flex; justify-content: space-between;">
+        <div style="padding: 8px; margin-bottom: 8px; border-radius: 5px; background: linear-gradient(to bottom, #a64db6, #810CA8); box-shadow: inset 0px 1px 5px rgba(255,255,255,0.8); color: #fff;">
+            <strong>Bus Number:</strong> ${transitDetails.line.short_name}
+        </div>
+        <div style="padding: 8px; margin-bottom: 8px; border-radius: 5px; background: linear-gradient(to bottom, #a64db6, #810CA8); box-shadow: inset 0px 1px 5px rgba(255,255,255,0.8); color: #fff;">
+            <strong>Total Stops:</strong> ${transitDetails.num_stops}
+        </div>
+    </div>
+</div>
 
+                   
+
+
+
+
+                `;
                 busRoutes.push(busInfo);
 
-                
+                // Capture the final bus stop's location
+                finalBusStopLocation = transitDetails.arrival_stop.location;
             }
         }
     });
 
-    // Display all the bus route and stops information
+    // Calculate distance from final bus stop to the destination
+    if (finalBusStopLocation) {
+        const destinationLatLng = new google.maps.LatLng(destination.lat(), destination.lng());
+        const finalBusStopLatLng = new google.maps.LatLng(finalBusStopLocation.lat(), finalBusStopLocation.lng());
+
+        const distanceToDestination = google.maps.geometry.spherical.computeDistanceBetween(finalBusStopLatLng, destinationLatLng) / 1000; // in km
+
+        if (distanceToDestination > 2) {
+            alert("The final bus stop is more than 2 km away from your destination. Consider taking a shared auto.");
+        }
+
+        busRoutes.push(`
+            <div>
+    <div style="color: white; display: flex; justify-content: center;">
+        <strong>Distance from Bus Stop to Destination:</strong> ${distanceToDestination.toFixed(2)} km
+    </div>
+    <div style="color: white; display: flex; justify-content: center;">
+        <strong>Total Distance:</strong> ${totalDistance} <br>
+    </div>
+    <div style="color: white; display: flex; justify-content: center;">
+        <strong>Total Time:</strong> ${totalTime}
+    </div>
+</div>
+        `);
+    }
+
+    // Display all bus route and stops information
     if (busRoutes.length > 0) {
         detailsDiv.innerHTML = busRoutes.join("<hr>");
     } else {
         detailsDiv.textContent = "No bus routes found for the given route.";
     }
 }
-///
-
-
-
 
 // Handle form submission to fetch the route
 document.getElementById("routeForm").addEventListener("submit", function (e) {
@@ -132,14 +160,25 @@ document.getElementById("routeForm").addEventListener("submit", function (e) {
     const destination = document.getElementById("destination").value.trim();
 
     if (source && destination) {
-        getRoute(source, destination);
+        getGeocodedLocations(source, destination);
     } else {
         document.getElementById("details").textContent = "Please enter both source and destination.";
     }
 });
 
+// Geocode the locations to get their lat/lng coordinates
+function getGeocodedLocations(source, destination) {
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ address: source }, (sourceResults, status) => {
+        if (status === google.maps.GeocoderStatus.OK) {
+            geocoder.geocode({ address: destination }, (destinationResults, status) => {
+                if (status === google.maps.GeocoderStatus.OK) {
+                    getRoute(sourceResults[0].geometry.location, destinationResults[0].geometry.location);
+                }
+            });
+        }
+    });
+}
 
 // Ensure the map initializes properly
 window.initMap = initMap;
-
-/////////////////////////////
