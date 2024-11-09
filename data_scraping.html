@@ -9,6 +9,11 @@
     <title>Scraping</title>
     <link rel="icon" href="icon/my_logo.png" type="image/x-icon">
     <style>
+      .gist-embed {
+            width: 100%;
+            height: 100vh; /* Adjust height as needed */
+        }
+
         html{
           overflow-x: hidden;
           scroll-behavior: smooth;
@@ -673,6 +678,15 @@
     <div class="about">
         Data Scraping
       </div>
+
+      <!-- <div style="position: relative; padding-bottom: 100vh; height: 0; overflow: hidden;">
+        <iframe src="https://gist.github.com/HIRU-VIRU/46562d03b7e97979575bd954f29f50cd.js"
+                style="border: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+        </iframe>
+      </div> -->
+
+      <!-- <iframe src="https://gist.github.com/HIRU-VIRU/46562d03b7e97979575bd954f29f50cd.js" style="border: none; width: 100%; height: 100vh;"></iframe> -->
+
       <div class="aboutp" style="padding-left: 200px;">
         This code scrapes bus route details from the MTC (Metropolitan Transport Corporation) website, extracting available routes and their respective stops. It installs necessary libraries like beautifulsoup4, pandas, and tqdm, then scrapes all bus routes from the website by parsing the HTML content and extracting route names from a dropdown menu. The route list is cleaned and stored in a pandas DataFrame. The code then initializes an empty DataFrame to collect route_id, stop_id, and stop_name for each route, using a progress bar from tqdm while scraping the details for each route. For each route, it parses the stops and appends the data to a list, which is later converted into a DataFrame. Finally, the DataFrame is saved into a CSV file for further analysis. The code also handles errors in case of unexpected data formats and ensures that only valid stop details are collected.
       </div>
@@ -684,13 +698,9 @@
                 </a>
             </div>
       </div>
-    
-      <div style="display: flex; justify-content: center;">
-        <embed src="PDF/data_scrapper.ipynb - Colab.pdf" width="75%" height="2100px" />
-      </div>
   </div>
 
-  
+  <script src="https://gist.github.com/HIRU-VIRU/46562d03b7e97979575bd954f29f50cd.js" class="gist-embed"></script>
 
 
   <!-- headear end -->
